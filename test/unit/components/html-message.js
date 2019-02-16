@@ -1,8 +1,8 @@
-import expect, {spyOn} from 'expect';
+import expect from 'expect';
 import expectJSX from 'expect-jsx';
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import IntlProvider, {getContext} from '../../../src/components/provider';
+import {getContext} from '../../../src/components/provider';
 import FormattedHTMLMessage from '../../../src/components/html-message';
 
 expect.extend(expectJSX);
@@ -10,12 +10,10 @@ expect.extend(expectJSX);
 describe('<FormattedHTMLMessage>', () => {
     let consoleError;
     let renderer;
-    let intlProvider;
 
     beforeEach(() => {
         consoleError = jest.spyOn(console, 'error');
         renderer     = Renderer.create;
-        intlProvider = getContext();
     });
 
     afterEach(() => {
