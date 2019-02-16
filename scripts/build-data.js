@@ -5,7 +5,7 @@ import extractCLDRData from 'formatjs-extract-cldr-data';
 import serialize from 'serialize-javascript';
 import {rollup} from 'rollup';
 import memory from 'rollup-plugin-memory';
-import uglify from 'rollup-plugin-uglify';
+import {uglify} from 'rollup-plugin-uglify';
 
 const DEFAULT_LOCALE = 'en';
 
