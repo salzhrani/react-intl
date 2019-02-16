@@ -4,17 +4,13 @@
  * See the accompanying LICENSE file for terms.
  */
 
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
-import {intlShape, dateTimeFormatPropTypes} from '../types';
-import {invariantIntlContext, shouldIntlComponentUpdate} from '../utils';
+import {dateTimeFormatPropTypes} from '../types';
+import {Consumer} from './provider';
 
-export default class FormattedDate extends Component {
+export default class FormattedDate extends PureComponent {
   static displayName = 'FormattedDate';
-
-  static contextTypes = {
-    intl: intlShape,
-  };
 
   static propTypes = {
     ...dateTimeFormatPropTypes,
@@ -23,25 +19,20 @@ export default class FormattedDate extends Component {
     children: PropTypes.func,
   };
 
-  constructor(props, context) {
-    super(props, context);
-    invariantIntlContext(context);
-  }
-
-  shouldComponentUpdate(...next) {
-    return shouldIntlComponentUpdate(this, ...next);
-  }
-
   render() {
-    const {formatDate, textComponent: Text} = this.context.intl;
-    const {value, children} = this.props;
+    return (
+      <Consumer>
+        {intl => {
+          const {formatDate, textComponent: Text} = intl;
+          const {value, children} = this.props;
+          let formattedDate = formatDate(value, this.props);
 
-    let formattedDate = formatDate(value, this.props);
-
-    if (typeof children === 'function') {
-      return children(formattedDate);
-    }
-
-    return <Text>{formattedDate}</Text>;
+          if (typeof children === 'function') {
+            return children(formattedDate);
+          }
+          return <Text>{formattedDate}</Text>;
+        }}
+      </Consumer>
+    );
   }
 }

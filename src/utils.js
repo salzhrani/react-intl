@@ -84,20 +84,12 @@ export function shouldIntlComponentUpdate(
   {props, state, context = {}},
   nextProps,
   nextState,
-  nextContext = {}
 ) {
-  const {intl = {}} = context;
-  const {intl: nextIntl = {}} = nextContext;
-
   return (
     !shallowEquals(nextProps, props) ||
-    !shallowEquals(nextState, state) ||
-    !(
-      nextIntl === intl ||
-      shallowEquals(
-        filterProps(nextIntl, intlConfigPropNames),
-        filterProps(intl, intlConfigPropNames)
-      )
+    !shallowEquals(
+      nextState,
+      state
     )
   );
 }
