@@ -1,116 +1,104 @@
-import expect, {spyOn} from 'expect';
-import expectJSX from 'expect-jsx';
+import expect from 'expect';
 import React from 'react';
-import {createRenderer} from '../../react-compat';
-import IntlProvider from '../../../src/components/provider';
+import Renderer from 'react-test-renderer';
+import IntlProvider, {getContext} from '../../../src/components/provider';
 import FormattedPlural from '../../../src/components/plural';
 
-expect.extend(expectJSX);
 
 describe('<FormattedPlural>', () => {
     let consoleError;
     let renderer;
-    let intlProvider;
 
     beforeEach(() => {
-        consoleError = spyOn(console, 'error');
-        renderer     = createRenderer();
-        intlProvider = new IntlProvider({locale: 'en'}, {});
+        consoleError = jest.spyOn(console, 'error');
+        renderer     = Renderer.create;
     });
 
     afterEach(() => {
-        consoleError.restore();
+        consoleError.mockRestore();
+    });
+
+    afterEach(() => {
+        consoleError.mockRestore();
     });
 
     it('has a `displayName`', () => {
-        expect(FormattedPlural.displayName).toBeA('string');
+        expect(typeof FormattedPlural.displayName).toBe('string');
     });
 
-    it('throws when <IntlProvider> is missing from ancestry', () => {
-        expect(() => renderer.render(<FormattedPlural />)).toThrow(
-            '[React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.'
-        );
-    });
+    // it('throws when <IntlProvider> is missing from ancestry', () => {
+    //     expect(() => renderer.render(<FormattedPlural />)).toThrow(
+    //         '[React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.'
+    //     );
+    // });
 
     it('renders an empty <span> when no `other` prop is provided', () => {
-        const {intl} = intlProvider.getChildContext();
 
-        renderer.render(<FormattedPlural />, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(<span />);
+        const compOne = renderer(<FormattedPlural />);
+        expect(compOne.toJSON()).toEqual(renderer(<span />).toJSON());
 
-        renderer.render(<FormattedPlural value={1} />, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(<span />);
+        const compTwo = renderer(<FormattedPlural value={1} />);
+        expect(compTwo.toJSON()).toEqual(renderer(<span />).toJSON());
     });
 
     it('renders `other` in a <span> when no `value` prop is provided', () => {
-        renderer.render(<FormattedPlural other="foo" />, intlProvider.getChildContext());
-        expect(renderer.getRenderOutput()).toEqualJSX(<span>foo</span>);
+        expect(renderer(<FormattedPlural other="foo" />).toJSON()).toEqual(renderer(<span>foo</span>).toJSON());
     });
 
     it('renders a formatted plural in a <span>', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const num = 1;
 
-        const el = <FormattedPlural value={num} one="foo" other="bar" />;
-
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{el.props[intl.formatPlural(num)]}</span>
+        const el = renderer(<FormattedPlural value={num} one="foo" other="bar" />);
+        expect(el.toJSON()).toEqual(
+            renderer(<span>{el.root.props[intl.formatPlural(num)]}</span>).toJSON()
         );
     });
 
     it('should not re-render when props and context are the same', () => {
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedPlural value={0} other="foo" />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedPlural value={0} other="foo" />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(<FormattedPlural value={0} other="foo">{fn}</FormattedPlural>);
+        expect(count).toBe(1);
+        comp.update(<FormattedPlural value={0} other="foo">{fn}</FormattedPlural>);
+        expect(count).toBe(1);
     });
 
     it('should re-render when props change', () => {
-        renderer.render(<FormattedPlural value={0} one="foo" other="bar" />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        renderer.render(<FormattedPlural value={1} one="foo" other="bar" />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toNotBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(<FormattedPlural value={0} other="foo">{fn}</FormattedPlural>);
+        expect(count).toBe(1);
+        comp.update(<FormattedPlural value={1} other="foo">{fn}</FormattedPlural>);
+        expect(count).toBe(2);
     });
 
     it('should re-render when context changes', () => {
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedPlural value={0} other="foo" />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        intlProvider = new IntlProvider({locale: 'en-US'}, {});
-        renderer.render(<FormattedPlural value={0} other="foo" />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toNotBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(<IntlProvider locale="en"><FormattedPlural value={0} other="foo">{fn}</FormattedPlural></IntlProvider>);
+        expect(count).toBe(1);
+        comp.update(<IntlProvider locale="en-Us"><FormattedPlural value={0} other="foo">{fn}</FormattedPlural></IntlProvider>);
+        expect(count).toBe(2);
     });
 
     it('accepts valid IntlPluralFormat options as props', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const num = 22;
         const options = {style: 'ordinal'};
 
-        const el = <FormattedPlural value={num} two="nd" {...options} />;
+        const el = renderer(<FormattedPlural value={num} two="nd" {...options} />);
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{el.props[intl.formatPlural(num, options)]}</span>
+        expect(el.toJSON()).toEqual(
+            renderer(<span>{el.root.props[intl.formatPlural(num, options)]}</span>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const num = 1;
 
-        const el = (
+        const el = renderer(
             <FormattedPlural value={num} one="foo">
                 {(formattedPlural) => (
                     <b>{formattedPlural}</b>
@@ -118,9 +106,8 @@ describe('<FormattedPlural>', () => {
             </FormattedPlural>
         );
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <b>{el.props[intl.formatPlural(num)]}</b>
+        expect(el.toJSON()).toEqual(
+            renderer(<b>{el.root.props[intl.formatPlural(num)]}</b>).toJSON()
         );
     });
 });

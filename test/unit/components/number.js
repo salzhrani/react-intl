@@ -1,115 +1,105 @@
-import expect, {spyOn} from 'expect';
-import expectJSX from 'expect-jsx';
+import expect from 'expect';
 import React from 'react';
-import {createRenderer} from '../../react-compat';
-import IntlProvider from '../../../src/components/provider';
+import Renderer from 'react-test-renderer';
+import IntlProvider, {getContext} from '../../../src/components/provider';
 import FormattedNumber from '../../../src/components/number';
 
-expect.extend(expectJSX);
 
 describe('<FormattedNumber>', () => {
     let consoleError;
     let renderer;
-    let intlProvider;
 
     beforeEach(() => {
-        consoleError = spyOn(console, 'error');
-        renderer     = createRenderer();
-        intlProvider = new IntlProvider({locale: 'en'}, {});
+        consoleError = jest.spyOn(console, 'error');
+        renderer     = Renderer.create;
     });
 
     afterEach(() => {
-        consoleError.restore();
+        consoleError.mockRestore();
+    });
+
+    afterEach(() => {
+        consoleError.mockRestore();
     });
 
     it('has a `displayName`', () => {
-        expect(FormattedNumber.displayName).toBeA('string');
+        expect(typeof FormattedNumber.displayName).toBe('string');
     });
 
-    it('throws when <IntlProvider> is missing from ancestry', () => {
-        expect(() => renderer.render(<FormattedNumber />)).toThrow(
-            '[React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.'
-        );
-    });
+    // it('throws when <IntlProvider> is missing from ancestry', () => {
+    //     expect(() => renderer.render(<FormattedNumber />)).toThrow(
+    //         '[React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.'
+    //     );
+    // });
 
     it('renders "NaN" in a <span> when no `value` prop is provided', () => {
-        renderer.render(<FormattedNumber />, intlProvider.getChildContext());
-        expect(renderer.getRenderOutput()).toEqualJSX(<span>NaN</span>);
+        const comp1 = renderer(<FormattedNumber />);
+        expect(comp1.toJSON()).toEqual(renderer(<span>NaN</span>).toJSON());
     });
 
     it('renders a formatted number in a <span>', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const num = 1000;
 
-        const el = <FormattedNumber value={num} />;
+        const el = renderer(<FormattedNumber value={num} />);
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{intl.formatNumber(num)}</span>
+        expect(el.toJSON()).toEqual(
+            renderer(<span>{intl.formatNumber(num)}</span>).toJSON()
         );
     });
 
     it('should not re-render when props and context are the same', () => {
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedNumber value={1000} />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedNumber value={1000} />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(<FormattedNumber value={1000}>{fn}</FormattedNumber>);
+        expect(count).toBe(1);
+        comp.update(<FormattedNumber value={1000}>{fn}</FormattedNumber>);
+        expect(count).toBe(1);
     });
 
     it('should re-render when props change', () => {
-        renderer.render(<FormattedNumber value={1000} />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        renderer.render(<FormattedNumber value={2000} />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toNotBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(<FormattedNumber value={1000}>{fn}</FormattedNumber>);
+        expect(count).toBe(1);
+        comp.update(<FormattedNumber value={2000}>{fn}</FormattedNumber>);
+        expect(count).toBe(2);
     });
 
     it('should re-render when context changes', () => {
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedNumber value={1000} />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        intlProvider = new IntlProvider({locale: 'en-US'}, {});
-        renderer.render(<FormattedNumber value={1000} />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toNotBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(<IntlProvider locale="en"><FormattedNumber value={1000}>{fn}</FormattedNumber></IntlProvider>);
+        expect(count).toBe(1);
+        comp.update(<IntlProvider locale="en-US"><FormattedNumber value={1000}>{fn}</FormattedNumber></IntlProvider>);
+        expect(count).toBe(2);
     });
 
     it('accepts valid Intl.NumberFormat options as props', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const num = 0.5;
         const options = {style: 'percent'};
 
-        const el = <FormattedNumber value={num} {...options} />;
+        const el = renderer(<FormattedNumber value={num} {...options} />);
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{intl.formatNumber(num, options)}</span>
+        expect(el.toJSON()).toEqual(
+            renderer(<span>{intl.formatNumber(num, options)}</span>).toJSON()
         );
     });
 
     it('fallsback and warns on invalid Intl.NumberFormat options', () => {
-        const {intl} = intlProvider.getChildContext();
         const el = <FormattedNumber value={0} style="invalid" />;
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{String(0)}</span>
+        const comp = renderer(el);
+        expect(comp.toJSON()).toEqual(
+            renderer(<span>{String(0)}</span>).toJSON()
         );
 
-        expect(consoleError.calls.length).toBeGreaterThan(0);
+        expect(consoleError.mock.calls.length).toBeGreaterThan(0);
     });
 
     it('accepts `format` prop', () => {
-        intlProvider = new IntlProvider({
+        const intl  = getContext({
             locale: 'en',
             formats: {
                 number: {
@@ -120,21 +110,19 @@ describe('<FormattedNumber>', () => {
                 },
             },
         }, {});
-
-        const {intl} = intlProvider.getChildContext();
         const num   = 0.505;
         const format = 'percent';
 
         const el = <FormattedNumber value={num} format={format} />;
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{intl.formatNumber(num, {format})}</span>
+        const comp = renderer(el);
+        expect(comp.toJSON()).toEqual(
+            renderer(<span>{intl.formatNumber(num, {format})}</span>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const num   = new Date();
 
         const el = (
@@ -145,9 +133,9 @@ describe('<FormattedNumber>', () => {
             </FormattedNumber>
         );
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <b>{intl.formatNumber(num)}</b>
+        const comp = renderer(el, {intl});
+        expect(comp.toJSON()).toEqualJSX(
+            renderer(<b>{intl.formatNumber(num)}</b>).toJSON()
         );
     });
 });

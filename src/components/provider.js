@@ -127,14 +127,6 @@ export const IntlContext = createContext(
 export default class IntlProvider extends PureComponent {
   static displayName = 'IntlProvider';
 
-  // static contextTypes = {
-  //   intl: intlShape,
-  // };
-
-  // static childContextTypes = {
-  //   intl: intlShape.isRequired,
-  // };
-
   static propTypes = {
     ...intlConfigPropTypes,
     children: PropTypes.element.isRequired,
