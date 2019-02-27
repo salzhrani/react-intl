@@ -6,8 +6,6 @@
 
 import React, { Component, createElement, isValidElement } from 'react';
 import PropTypes from 'prop-types';
-import IntlMessageFormat from 'intl-messageformat';
-import memoizeIntlConstructor from 'intl-format-cache';
 import { Consumer } from '../components/provider';
 import { messageDescriptorPropTypes } from '../types';
 import {

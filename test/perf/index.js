@@ -22,22 +22,20 @@ suite.on('error', function (e) {
     throw e.target.error;
 });
 
-const intlProvider = new IntlProvider({locale: 'en'}, {});
+// const intlProvider = new IntlProvider({locale: 'en'}, {});
 
-suite.add('IntlProvider#getChildContext()', function () {
-    intlProvider.getChildContext();
-});
+// suite.add('IntlProvider#getChildContext()', function () {
+//     intlProvider.getContext();
+// });
 
-const intlProviderContext = intlProvider.getChildContext();
-const intlProvider2 = new IntlProvider({locale: 'en'}, intlProviderContext);
-
-suite.add('IntlProvider#shouldComponentUpdate()', function () {
-    intlProvider2.shouldComponentUpdate(
-        {locale: 'en'},
-        intlProvider2.state,
-        intlProviderContext
-    );
-});
+const intlProvider2 = new IntlProvider({locale: 'en'});
+console.log(Object.keys(intlProvider2).join(', '));
+// suite.add('IntlProvider#shouldComponentUpdate()', function () {
+//     intlProvider2.shouldComponentUpdate(
+//         {locale: 'en'},
+//         intlProvider2.state,
+//     );
+// });
 
 suite.add('<div>', function () {
     ReactDOMServer.renderToString(
