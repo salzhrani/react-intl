@@ -151,5 +151,7 @@
     "preversion": "npm run clean && npm run build && npm run test:all",
     "prepare": "npm run clean && npm run build"
   },
-  "transformIgnorePatterns": ["locale-data/index.js$"]
+  "resolutions": {
+    "intl-messageformat": "2.2.0"
+  }
 }
