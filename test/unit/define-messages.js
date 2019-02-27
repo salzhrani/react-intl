@@ -3,7 +3,7 @@ import defineMessages from '../../src/define-messages';
 
 describe('defineMessages()', () => {
     it('exports a default function', () => {
-        expect(defineMessages).toBeA('function');
+        expect(typeof defineMessages).toBe('function');
     });
 
     it('retuns the passed-in Message Descriptors', () => {

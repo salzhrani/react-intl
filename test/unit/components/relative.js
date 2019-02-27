@@ -240,35 +240,44 @@ describe('<FormattedRelative>', () => {
     });
 
     it('updates when the `value` prop changes', () => {
-        const { intl } = intlProvider.getChildContext();
+        jest.useFakeTimers();
+        const intl = getContext();
         const now = intl.now();
+        const nowMock = jest.spyOn(intl, 'now');
 
-        renderer.render(<FormattedRelative value={now} updateInterval={1} />, {
-            intl
-        });
-        const renderedOne = renderer.getRenderOutput();
-
-        // Shallow Renderer doesn't call `componentDidMount()`. This forces the
-        // scheduler to schedule an update based on the `updateInterval`.
-        renderer.getMountedInstance().componentDidMount();
-
-        // Update `now()` to act like the <IntlProvider> is mounted.
-        const nextNow = now + 1000;
-        intl.now = () => nextNow;
-
-        renderer.render(
-            <FormattedRelative value={nextNow} updateInterval={1} />,
-            { intl }
+        let comp;
+        comp = renderer(
+            <IntlContext.Provider value={intl}>
+                <FormattedRelative value={now} updateInterval={1} />
+            </IntlContext.Provider>
         );
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedTwo).toEqualJSX(renderedOne);
-
-        renderer.unmount();
+        const renderedOne = comp.toJSON();
+        console.log('after first render', nowMock.mock.calls);
+        // Update `now()` to act like the <IntlProvider> is mounted.
+        const nextNow = nowMock.mock.results[0].value + 1000;
+        // intl.now = () => {
+        //     console.log('shifted');
+        //     return nextNow;
+        // };
+        nowMock.mockReturnValue(nextNow);
+        act(() => {
+            jest.runAllTimers();
+        });
+        act(() => {
+            comp.update(
+                <IntlContext.Provider value={intl}>
+                    <FormattedRelative value={nextNow} updateInterval={1} />
+                </IntlContext.Provider>
+            );
+        });
+        console.log('after second render', nowMock.mock.calls);
+        console.log(nowMock.mock.results);
+        const renderedTwo = comp.toJSON();
+        expect(renderedTwo).toEqual(renderedOne);
     });
 
-    it('updates at maximum of `updateInterval` with a string `value`', done => {
-        const { intl } = intlProvider.getChildContext();
+    it('updates at maximum of `updateInterval` with a string `value`', () => {
+        const intl = getContext();
 
         // `toString()` rounds the date to the nearest second, this makes sure
         // `date` and `now` are exactly 1000ms apart so the scheduler will wait
@@ -276,52 +285,52 @@ describe('<FormattedRelative>', () => {
         const now = 2000;
         const date = new Date(now - 1000).toString();
 
-        spyOn(intl, 'now').andReturn(now);
-
-        renderer.render(<FormattedRelative value={date} updateInterval={1} />, {
-            intl
+        const mockedNow = jest.spyOn(intl, 'now');
+        act(() => {
+            renderer(
+                <IntlContext.Provider value={intl}>
+                    <FormattedRelative value={date} updateInterval={1} />
+                </IntlContext.Provider>
+            );
         });
+        // setTimeout(() => {
+        // Make sure setTimeout wasn't called with `NaN`, which is like `0`.
+        expect(mockedNow.mock.calls.length).toBe(1);
 
-        // Shallow Renderer doesn't call `componentDidMount()`. This forces the
-        // scheduler to schedule an update based on the `updateInterval`.
-        renderer.getMountedInstance().componentDidMount();
-
-        setTimeout(() => {
-            // Make sure setTimeout wasn't called with `NaN`, which is like `0`.
-            expect(intl.now.calls.length).toBe(1);
-
-            renderer.unmount();
-            done();
-        }, 10);
+        // }, 10);
     });
 
-    it('does not update when `updateInterval` prop is falsy', done => {
-        const { intl } = intlProvider.getChildContext();
+    it('does not update when `updateInterval` prop is falsy', () => {
+        const intl = getContext();
         const date = new Date();
-        const now = intl.now();
-
-        renderer.render(<FormattedRelative value={date} updateInterval={0} />, {
-            intl
+        const mockedNow = jest.spyOn(intl, 'now');
+        let comp;
+        act(() => {
+            comp = renderer(
+                <IntlContext.Provider value={intl}>
+                    <FormattedRelative value={date} updateInterval={0} />
+                </IntlContext.Provider>
+            );
         });
-        const renderedOne = renderer.getRenderOutput();
-
-        // Shallow Renderer doesn't call `componentDidMount()`. This forces the
-        // scheduler to schedule an update based on the `updateInterval`.
-        renderer.getMountedInstance().componentDidMount();
+        const renderedOne = comp.toJSON();
 
         // Update `now()` to act like the <IntlProvider> is mounted.
-        intl.now = () => now + 1000;
+        mockedNow.mockReturnValue(mockedNow.mock.results[0].value + 1000);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-        setTimeout(() => {
-            const renderedTwo = renderer.getRenderOutput();
+        const renderedTwo = comp.toJSON();
 
-            expect(renderedTwo).toEqualJSX(renderedOne);
-            expect(renderedTwo).toNotEqualJSX(
-                <span>{intl.formatRelative(date, { now: intl.now() })}</span>
-            );
-
-            renderer.unmount();
-            done();
-        }, 10);
+        expect(renderedTwo).toEqual(renderedOne);
+        expect(renderedTwo).not.toEqual(
+            renderer(
+                <IntlContext.Provider value={intl}>
+                    <span>
+                        {intl.formatRelative(date, { now: intl.now() })}
+                    </span>
+                </IntlContext.Provider>
+            ).toJSON()
+        );
     });
 });

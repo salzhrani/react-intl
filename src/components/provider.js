@@ -41,10 +41,8 @@ const getBoundFormatFns = (config, state) => {
 };
 
 const getConfig = props => {
-  // const {intl: intlContext} = this.context;
 
   // Build a whitelisted config object from `props`, defaults, and
-  // `context.intl`, if an <IntlProvider> exists in the ancestry.
   let config = filterProps(props, intlConfigPropNames);
 
   // Apply default props. This must be applied last after the props have
@@ -172,25 +170,9 @@ export default class IntlProvider extends PureComponent {
     };
   }
 
-  // shouldComponentUpdate(...next) {
-  //   console.log('props', next[0].locale);
-  //   console.log('in scu', shouldIntlComponentUpdate(this, ...next));
-  //   return shouldIntlComponentUpdate(this, ...next);
-  // }
-
   componentDidMount() {
     this._didDisplay = true;
   }
-
-  // getContext = memoizeOne(getContext, ([props, state], [newProps, newState])=> {
-  //   console.log('getting memoized context');
-  //   // console.log({props, state, newProps, newState});
-  //   if (props === newProps && state === newState) {
-  //     return true;
-  //   }
-  //   console.log('memo', !shouldIntlComponentUpdate({props, state}, newProps, newState));
-  //   return !shouldIntlComponentUpdate({props, state}, newProps, newState);
-  // })
 
   render() {
     return (

@@ -15,16 +15,6 @@
         }]
     ],
     "env": {
-        "development": {
-            "plugins": [
-                "@babel/plugin-external-helpers"
-            ]
-        },
-        "production": {
-            "plugins": [
-                "@babel/plugin-external-helpers"
-            ]
-        },
         "test": {
             "plugins": [
                 "@babel/plugin-transform-modules-commonjs"

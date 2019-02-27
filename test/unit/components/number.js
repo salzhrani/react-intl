@@ -134,7 +134,7 @@ describe('<FormattedNumber>', () => {
         );
 
         const comp = renderer(el, {intl});
-        expect(comp.toJSON()).toEqualJSX(
+        expect(comp.toJSON()).toEqual(
             renderer(<b>{intl.formatNumber(num)}</b>).toJSON()
         );
     });

@@ -10,10 +10,10 @@ describe('locale data', () => {
         localeDataFiles.forEach((filename) => {
             const localeData = require(p.resolve(filename));
 
-            expect(localeData).toBeAn('array');
+            expect(Array.isArray(localeData)).toBe(true);
             localeData.forEach((locale) => {
-                expect(locale).toBeAn('object');
-                expect(locale.locale).toExist();
+                expect(typeof locale).toBe('object');
+                expect(locale.locale).toBeDefined();
             });
         });
     });

@@ -1,4 +1,3 @@
-import expect from 'expect';
 import IntlMessageFormat from 'intl-messageformat';
 import IntlRelativeFormat from 'intl-relativeformat';
 import * as registry from '../../src/locale-data-registry';
@@ -30,11 +29,11 @@ describe('locale data registry', () => {
 
     describe('exports', () => {
         it('exports `addLocaleData`', () => {
-            expect(registry.addLocaleData).toBeA('function');
+            expect(typeof registry.addLocaleData).toBe('function');
         });
 
         it('exports `hasLocaleData`', () => {
-            expect(registry.hasLocaleData).toBeA('function');
+            expect(typeof registry.hasLocaleData).toBe('function');
         });
     });
 
@@ -47,7 +46,7 @@ describe('locale data registry', () => {
         });
 
         it('does not throw when called with no arguments', () => {
-            expect(() => registry.hasLocaleData()).toNotThrow();
+            expect(() => registry.hasLocaleData()).not.toThrow();
         });
 
         it('returns `false` when called with no arguments', () => {
@@ -86,7 +85,7 @@ describe('locale data registry', () => {
         });
 
         it('does not throw when called with no arguments', () => {
-            expect(() => registry.addLocaleData()).toNotThrow();
+            expect(() => registry.addLocaleData()).not.toThrow();
         });
 
         it('adds locale data to the registry', () => {
@@ -97,7 +96,7 @@ describe('locale data registry', () => {
         });
 
         it('accepts an array of locale data', () => {
-            expect(allLocaleData).toBeAn('array');
+            expect(Array.isArray(allLocaleData)).toBe(true);
 
             const {locale} = allLocaleData[0];
             expect(registry.hasLocaleData(locale)).toBe(false);

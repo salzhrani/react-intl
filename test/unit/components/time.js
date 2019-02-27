@@ -1,162 +1,156 @@
-import expect, {spyOn} from 'expect';
-import expectJSX from 'expect-jsx';
 import React from 'react';
-import {createRenderer} from '../../react-compat';
-import IntlProvider from '../../../src/components/provider';
+import Renderer from 'react-test-renderer';
+import IntlProvider, { getContext, IntlContext } from '../../../src/components/provider';
 import FormattedTime from '../../../src/components/time';
 
-expect.extend(expectJSX);
 
 describe('<FormattedTime>', () => {
     let consoleError;
     let renderer;
-    let intlProvider;
 
     beforeEach(() => {
-        consoleError = spyOn(console, 'error');
-        renderer     = createRenderer();
-        intlProvider = new IntlProvider({locale: 'en'}, {});
+        consoleError = jest.spyOn(console, 'error');
+        renderer = Renderer.create;
     });
 
     afterEach(() => {
-        consoleError.restore();
+        consoleError.mockRestore();
+    });
+
+    afterEach(() => {
+        consoleError.mockRestore();
     });
 
     it('has a `displayName`', () => {
-        expect(FormattedTime.displayName).toBeA('string');
+        expect(typeof FormattedTime.displayName).toBe('string');
     });
 
-    it('throws when <IntlProvider> is missing from ancestry', () => {
-        expect(() => renderer.render(<FormattedTime />)).toThrow(
-            '[React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.'
-        );
-    });
+    // it('throws when <IntlProvider> is missing from ancestry', () => {
+    //     expect(() => renderer.render(<FormattedTime />)).toThrow(
+    //         '[React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.'
+    //     );
+    // });
 
     it('requires a finite `value` prop', () => {
-        const {intl} = intlProvider.getChildContext();
-
-        renderer.render(<FormattedTime value={0} />, {intl});
+        renderer(<FormattedTime value={0} />);
         expect(isFinite(0)).toBe(true);
-        expect(consoleError.calls.length).toBe(0);
+        expect(consoleError.mock.calls.length).toBe(0);
 
-        renderer.render(<FormattedTime />, {intl});
-        expect(consoleError.calls.length).toBe(1);
-        expect(consoleError.calls[0].arguments[0]).toContain(
+        renderer(<FormattedTime />);
+        expect(consoleError.mock.calls.length).toBe(2);
+        expect(consoleError.mock.calls[1][0]).toContain(
             '[React Intl] Error formatting time.\nRangeError'
         );
     });
 
     it('renders a formatted time in a <span>', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const date = new Date();
 
-        const el = <FormattedTime value={date} />;
-
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{intl.formatTime(date)}</span>
+        const el = renderer(<FormattedTime value={date} />);
+        expect(el.toJSON()).toEqual(
+            renderer(<span>{intl.formatTime(date)}</span>).toJSON()
         );
     });
 
     it('should not re-render when props and context are the same', () => {
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedTime value={0} />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedTime value={0} />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(
+            <FormattedTime value={0}>{fn}</FormattedTime>
+        );
+        expect(count).toBe(1);
+        comp.update(
+            <FormattedTime value={0}>{fn}</FormattedTime>
+        );
+        expect(count).toBe(1);
     });
 
     it('should re-render when props change', () => {
-        renderer.render(<FormattedTime value={0} />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        renderer.render(<FormattedTime value={1} />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toNotBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(
+            <FormattedTime value={0}>{fn}</FormattedTime>
+        );
+        expect(count).toBe(1);
+        comp.update(
+            <FormattedTime value={1}>{fn}</FormattedTime>
+        );
+        expect(count).toBe(2);
     });
 
     it('should re-render when context changes', () => {
-        intlProvider = new IntlProvider({locale: 'en'}, {});
-        renderer.render(<FormattedTime value={0} />, intlProvider.getChildContext());
-        const renderedOne = renderer.getRenderOutput();
-
-        intlProvider = new IntlProvider({locale: 'en-US'}, {});
-        renderer.render(<FormattedTime value={0} />, intlProvider.getChildContext());
-        const renderedTwo = renderer.getRenderOutput();
-
-        expect(renderedOne).toNotBe(renderedTwo);
+        let count = 0;
+        const fn = ()=> { count++; return null};
+        const comp = renderer(
+            <IntlProvider locale="en"><FormattedTime value={0}>{fn}</FormattedTime></IntlProvider>
+        );
+        expect(count).toBe(1);
+        comp.update(
+            <IntlProvider locale="en-US"><FormattedTime value={0}>{fn}</FormattedTime></IntlProvider>
+        );
+        expect(count).toBe(2);
     });
 
     it('accepts valid Intl.DateTimeFormat options as props', () => {
-        const {intl} = intlProvider.getChildContext();
+        const intl = getContext();
         const date = new Date();
-        const options = {hour: '2-digit'};
+        const options = { hour: '2-digit' };
 
         const el = <FormattedTime value={date} {...options} />;
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{intl.formatTime(date, options)}</span>
+        expect(renderer(el).toJSON()).toEqual(
+            renderer(<span>{intl.formatTime(date, options)}</span>).toJSON()
         );
     });
 
     it('fallsback and warns on invalid Intl.DateTimeFormat options', () => {
-        const {intl} = intlProvider.getChildContext();
         const el = <FormattedTime value={0} hour="invalid" />;
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{String(new Date(0))}</span>
+        expect(renderer(el).toJSON()).toEqual(
+            renderer(<span>{String(new Date(0))}</span>).toJSON()
         );
 
-        expect(consoleError.calls.length).toBeGreaterThan(0);
+        expect(consoleError.mock.calls.length).toBeGreaterThan(0);
     });
 
     it('accepts `format` prop', () => {
-        intlProvider = new IntlProvider({
-            locale: 'en',
-            formats: {
-                time: {
-                    'hour-only': {
-                        hour: '2-digit',
-                        hour12: false,
-                    },
-                },
-            },
-        }, {});
+        const intl = getContext(
+            {
+                locale: 'en',
+                formats: {
+                    time: {
+                        'hour-only': {
+                            hour: '2-digit',
+                            hour12: false
+                        }
+                    }
+                }
+            }
+        );
 
-        const {intl} = intlProvider.getChildContext();
-        const date   = new Date();
+        const date = new Date();
         const format = 'hour-only';
 
-        const el = <FormattedTime value={date} format={format} />;
+        const el = <IntlContext.Provider value={intl}><FormattedTime value={date} format={format} /></IntlContext.Provider>;
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <span>{intl.formatTime(date, {format})}</span>
+        expect(renderer(el).toJSON()).toEqual(
+            renderer(<span>{intl.formatTime(date, { format })}</span>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const {intl} = intlProvider.getChildContext();
-        const date   = new Date();
+        const intl = getContext();
+        const date = new Date();
 
         const el = (
             <FormattedTime value={date}>
-                {(formattedTime) => (
-                    <b>{formattedTime}</b>
-                )}
+                {formattedTime => <b>{formattedTime}</b>}
             </FormattedTime>
         );
 
-        renderer.render(el, {intl});
-        expect(renderer.getRenderOutput()).toEqualJSX(
-            <b>{intl.formatTime(date)}</b>
+        expect(renderer(el).toJSON()).toEqual(
+            renderer(<b>{intl.formatTime(date)}</b>).toJSON()
         );
     });
 });

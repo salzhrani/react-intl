@@ -1,11 +1,8 @@
-import expect from 'expect';
-import expectJSX from 'expect-jsx';
 import React from 'react';
 import Renderer from 'react-test-renderer';
 import {getContext} from '../../../src/components/provider';
 import FormattedMessage from '../../../src/components/message';
 
-expect.extend(expectJSX);
 
 describe('<FormattedMessage>', () => {
     let consoleError;
@@ -47,7 +44,7 @@ describe('<FormattedMessage>', () => {
             id: 'hello',
             defaultMessage: 'Hello, World!',
         };
-
+        console.log('formatMessage', intl.formatMessage);
         const comp1 = renderer(<FormattedMessage {...descriptor} />);
         const comp2 = renderer(<span>{intl.formatMessage(descriptor)}</span>);
         expect(comp1.toJSON()).toEqual(comp2.toJSON());

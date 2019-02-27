@@ -11,20 +11,9 @@ import memoizeIntlConstructor from 'intl-format-cache';
 import { Consumer } from '../components/provider';
 import { messageDescriptorPropTypes } from '../types';
 import {
-    invariantIntlContext,
     shallowEquals,
     shouldIntlComponentUpdate
 } from '../utils';
-import { formatMessage as baseFormatMessage } from '../format';
-
-const defaultFormatMessage = (descriptor, values) => {
-    return baseFormatMessage(
-        {},
-        { getMessageFormat: memoizeIntlConstructor(IntlMessageFormat) },
-        descriptor,
-        values
-    );
-};
 
 export default class FormattedMessage extends Component {
     static displayName = 'FormattedMessage';
@@ -39,13 +28,6 @@ export default class FormattedMessage extends Component {
     static defaultProps = {
         values: {}
     };
-
-    constructor(props, context) {
-        super(props, context);
-        if (!props.defaultMessage) {
-            invariantIntlContext(context);
-        }
-    }
 
     shouldComponentUpdate(nextProps, ...next) {
         const { values } = this.props;
@@ -71,7 +53,7 @@ export default class FormattedMessage extends Component {
             <Consumer>
                 {intl => {
                     const {
-                        formatMessage = defaultFormatMessage,
+                        formatMessage,
                         textComponent: Text = 'span'
                     } = intl || {};
 

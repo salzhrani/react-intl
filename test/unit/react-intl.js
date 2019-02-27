@@ -1,57 +1,56 @@
-import expect from 'expect';
 import * as ReactIntl from '../../src/react-intl';
 
 describe('react-intl', () => {
     describe('exports', () => {
         it('exports `addLocaleData`', () => {
-            expect(ReactIntl.addLocaleData).toBeA('function');
+            expect(typeof ReactIntl.addLocaleData).toBe('function');
         });
 
         it('exports `defineMessages`', () => {
-            expect(ReactIntl.defineMessages).toBeA('function');
+            expect(typeof ReactIntl.defineMessages).toBe('function');
         });
 
         it('exports `injectIntl`', () => {
-            expect(ReactIntl.injectIntl).toBeA('function');
+            expect(typeof ReactIntl.injectIntl).toBe('function');
         });
 
         describe('React Components', () => {
             it('exports `IntlProvider`', () => {
-                expect(ReactIntl.IntlProvider).toBeA('function');
+                expect(typeof ReactIntl.IntlProvider).toBe('function');
             });
 
             it('exports `FormattedDate`', () => {
-                expect(ReactIntl.FormattedDate).toBeA('function');
+                expect(typeof ReactIntl.FormattedDate).toBe('function');
             });
 
             it('exports `FormattedTime`', () => {
-                expect(ReactIntl.FormattedTime).toBeA('function');
+                expect(typeof ReactIntl.FormattedTime).toBe('object');
             });
 
             it('exports `FormattedRelative`', () => {
-                expect(ReactIntl.FormattedRelative).toBeA('function');
+                expect(typeof ReactIntl.FormattedRelative).toBe('object');
             });
 
             it('exports `FormattedNumber`', () => {
-                expect(ReactIntl.FormattedNumber).toBeA('function');
+                expect(typeof ReactIntl.FormattedNumber).toBe('object');
             });
 
             it('exports `FormattedPlural`', () => {
-                expect(ReactIntl.FormattedPlural).toBeA('function');
+                expect(typeof ReactIntl.FormattedPlural).toBe('object');
             });
 
             it('exports `FormattedMessage`', () => {
-                expect(ReactIntl.FormattedMessage).toBeA('function');
+                expect(typeof ReactIntl.FormattedMessage).toBe('function');
             });
 
             it('exports `FormattedHTMLMessage`', () => {
-                expect(ReactIntl.FormattedHTMLMessage).toBeA('function');
+                expect(typeof ReactIntl.FormattedHTMLMessage).toBe('function');
             });
         });
 
         describe('PropTypes Definitions', () => {
             it('exports `intlShape`', () => {
-                expect(ReactIntl.intlShape).toBeAn('function');
+                expect(typeof ReactIntl.intlShape).toBe('function');
             });
         });
     });

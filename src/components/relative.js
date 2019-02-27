@@ -4,10 +4,10 @@
  * See the accompanying LICENSE file for terms.
  */
 
-import React, { PureComponent, useContext, useEffect, useState, memo } from 'react';
+import React, { useContext, useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { relativeFormatPropTypes } from '../types';
-import IntlProvider, { IntlContext } from './provider';
+import { IntlContext } from './provider';
 
 const SECOND = 1000;
 const MINUTE = 1000 * 60;
@@ -69,14 +69,11 @@ const SFC = memo(props => {
         IntlContext
     );
     const { formatRelative, textComponent: Text, now: nowFn } = intl;
-    console.log('foo', intl.foo)
     const [now, setNow] = useState(() => {
         return isFinite(props.initialNow) ? Number(props.initialNow) : nowFn();
     });
-    console.log('now', now);
     const { value, children, units, updateInterval } = props;
     useEffect(() => {
-        console.log('top effect');
         const time = new Date(value).getTime();
 
         // If the `updateInterval` is falsy, including `0` or we don't have a
@@ -98,13 +95,10 @@ const SFC = memo(props => {
             delta < 0
                 ? Math.max(updateInterval, unitDelay - unitRemainder)
                 : Math.max(updateInterval, unitRemainder);
-        console.log('inEffect', delay);
         let timer = setTimeout(() => {
-            console.log('updating now', nowFn());
             setNow(nowFn());
         }, delay);
         return () => {
-            console.log('clearing timer');
             clearInterval(timer);
         };
     }, [value, units, updateInterval, now]);

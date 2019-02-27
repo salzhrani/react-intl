@@ -40,14 +40,6 @@ export function filterProps(props, whitelist, defaults = {}) {
   }, {});
 }
 
-export function invariantIntlContext({intl} = {}) {
-  invariant(
-    intl,
-    '[React Intl] Could not find required `intl` object. ' +
-      '<IntlProvider> needs to exist in the component ancestry.'
-  );
-}
-
 export function shallowEquals(objA, objB) {
   if (objA === objB) {
     return true;

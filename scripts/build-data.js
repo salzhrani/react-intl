@@ -75,8 +75,13 @@ writeFile(`src/${DEFAULT_LOCALE}.js`, defaultData);
 const allData = createDataModule([...cldrDataByLocale.values()]);
 writeUMDFile('locale-data/index.js', allData);
 
+let promise = Promise.resolve();
+
 cldrDataByLang.forEach((cldrData, lang) => {
-  writeUMDFile(`locale-data/${lang}.js`, createDataModule(cldrData));
+  promise = promise.then(() => {
+    console.log(`writing locale-data/${lang}.js`);
+    return writeUMDFile(`locale-data/${lang}.js`, createDataModule(cldrData))
+  });
 });
 
 process.on('unhandledRejection', reason => {

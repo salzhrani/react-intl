@@ -4,44 +4,32 @@
  * See the accompanying LICENSE file for terms.
  */
 
-import React, {Component} from 'react';
+import React, { useContext, memo } from 'react';
 import PropTypes from 'prop-types';
-import {intlShape, dateTimeFormatPropTypes} from '../types';
-import {invariantIntlContext, shouldIntlComponentUpdate} from '../utils';
+import { dateTimeFormatPropTypes } from '../types';
+import { IntlContext } from './provider';
 
-export default class FormattedTime extends Component {
-  static displayName = 'FormattedTime';
+const FormattedTime = memo(props => {
+    const intl = useContext(IntlContext);
+    const { formatTime, textComponent: Text } = intl;
+    const { value, children } = props;
 
-  static contextTypes = {
-    intl: intlShape,
-  };
-
-  static propTypes = {
-    ...dateTimeFormatPropTypes,
-    value: PropTypes.any.isRequired,
-    format: PropTypes.string,
-    children: PropTypes.func,
-  };
-
-  constructor(props, context) {
-    super(props, context);
-    invariantIntlContext(context);
-  }
-
-  shouldComponentUpdate(...next) {
-    return shouldIntlComponentUpdate(this, ...next);
-  }
-
-  render() {
-    const {formatTime, textComponent: Text} = this.context.intl;
-    const {value, children} = this.props;
-
-    let formattedTime = formatTime(value, this.props);
+    let formattedTime = formatTime(value, props);
 
     if (typeof children === 'function') {
-      return children(formattedTime);
+        return children(formattedTime);
     }
 
     return <Text>{formattedTime}</Text>;
-  }
-}
+});
+
+FormattedTime.displayName = 'FormattedTime';
+
+FormattedTime.propTypes = {
+    ...dateTimeFormatPropTypes,
+    value: PropTypes.any.isRequired,
+    format: PropTypes.string,
+    children: PropTypes.func
+};
+
+export default FormattedTime;

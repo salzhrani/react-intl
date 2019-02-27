@@ -1,15 +1,8 @@
-// import expect from 'expect';
-import expectJSX from 'expect-jsx';
 import React from 'react';
-import Enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
 import Renderer from 'react-test-renderer';
 
-Enzyme.configure({ adapter: new Adapter() });
 import IntlProvider, {IntlContext} from '../../../src/components/provider';
 import FormattedDate from '../../../src/components/date';
-
-expect.extend(expectJSX);
 
 
 describe('<FormattedDate>', () => {
