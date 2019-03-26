@@ -21,13 +21,13 @@
     "Caridy Patino <caridy@gmail.com>"
   ],
   "license": "BSD-3-Clause",
-  "homepage": "https://github.com/yahoo/react-intl",
+  "homepage": "https://github.com/salzhrani/react-intl",
   "bugs": {
-    "url": "https://github.com/yahoo/react-intl/issues"
+    "url": "https://github.com/salzhrani/react-intl/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:yahoo/react-intl.git"
+    "url": "git@github.com:salzhrani/react-intl.git"
   },
   "main": "./lib/index.js",
   "module": "./lib/index.es.js",
