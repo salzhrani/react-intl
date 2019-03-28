@@ -1,3 +1,5 @@
+### This Fork uses react's new context api and exports the context for use with the hooks API. Also it utilizes hooks internally thus dropping compatibility with react < 16.8.0
+
 React Intl
 ==========
 
