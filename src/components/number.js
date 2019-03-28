@@ -4,31 +4,31 @@
  * See the accompanying LICENSE file for terms.
  */
 
-import React, { useContext, memo } from 'react';
+import React, {useContext, memo} from 'react';
 import PropTypes from 'prop-types';
-import { numberFormatPropTypes } from '../types';
-import { IntlContext } from './provider';
+import {numberFormatPropTypes} from '../types';
+import {IntlContext} from '../context';
 
 const FormattedNumber = memo(props => {
-    const intl = useContext(IntlContext);
-    const { formatNumber, textComponent: Text } = intl;
-    const { children, value } = props;
-    let formattedNumber = formatNumber(value, props);
+  const intl = useContext(IntlContext);
+  const {formatNumber, textComponent: Text} = intl;
+  const {children, value} = props;
+  let formattedNumber = formatNumber(value, props);
 
-    if (typeof children === 'function') {
-        return children(formattedNumber);
-    }
+  if (typeof children === 'function') {
+    return children(formattedNumber);
+  }
 
-    return <Text>{formattedNumber}</Text>;
+  return <Text>{formattedNumber}</Text>;
 });
 
 FormattedNumber.displayName = 'FormattedNumber';
 
 FormattedNumber.propTypes = {
-    ...numberFormatPropTypes,
-    value: PropTypes.any.isRequired,
-    format: PropTypes.string,
-    children: PropTypes.func
+  ...numberFormatPropTypes,
+  value: PropTypes.any.isRequired,
+  format: PropTypes.string,
+  children: PropTypes.func,
 };
 
 export default FormattedNumber;

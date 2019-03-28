@@ -80,7 +80,7 @@ let promise = Promise.resolve();
 cldrDataByLang.forEach((cldrData, lang) => {
   promise = promise.then(() => {
     console.log(`writing locale-data/${lang}.js`);
-    return writeUMDFile(`locale-data/${lang}.js`, createDataModule(cldrData))
+    return writeUMDFile(`locale-data/${lang}.js`, createDataModule(cldrData));
   });
 });
 

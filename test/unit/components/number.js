@@ -1,7 +1,8 @@
 import expect from 'expect';
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import IntlProvider, {getContext} from '../../../src/components/provider';
+import IntlProvider from '../../../src/components/provider';
+import {IntlContext, Consumer} from '../../../src/context';
 import FormattedNumber from '../../../src/components/number';
 
 
@@ -38,13 +39,12 @@ describe('<FormattedNumber>', () => {
     });
 
     it('renders a formatted number in a <span>', () => {
-        const intl = getContext();
         const num = 1000;
 
         const el = renderer(<FormattedNumber value={num} />);
 
         expect(el.toJSON()).toEqual(
-            renderer(<span>{intl.formatNumber(num)}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{intl.formatNumber(num)}</span>}</Consumer>).toJSON()
         );
     });
 
@@ -76,14 +76,13 @@ describe('<FormattedNumber>', () => {
     });
 
     it('accepts valid Intl.NumberFormat options as props', () => {
-        const intl = getContext();
         const num = 0.5;
         const options = {style: 'percent'};
 
         const el = renderer(<FormattedNumber value={num} {...options} />);
 
         expect(el.toJSON()).toEqual(
-            renderer(<span>{intl.formatNumber(num, options)}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{intl.formatNumber(num, options)}</span>}</Consumer>).toJSON()
         );
     });
 
@@ -99,32 +98,29 @@ describe('<FormattedNumber>', () => {
     });
 
     it('accepts `format` prop', () => {
-        const intl  = getContext({
-            locale: 'en',
-            formats: {
-                number: {
+        const num   = 0.505;
+        const format = 'percent';
+
+        const el = <IntlProvider locale="en" formats={{number: {
                     'percent': {
                         style: 'percent',
                         minimumFractionDigits: 2,
                     },
-                },
-            },
-        }, {});
-        const num   = 0.505;
-        const format = 'percent';
-
-        const el = <FormattedNumber value={num} format={format} />;
+                }}}><FormattedNumber value={num} format={format} /></IntlProvider>;
 
         const comp = renderer(el);
         expect(comp.toJSON()).toEqual(
-            renderer(<span>{intl.formatNumber(num, {format})}</span>).toJSON()
+            renderer(<IntlProvider locale="en" formats={{number: {
+                    'percent': {
+                        style: 'percent',
+                        minimumFractionDigits: 2,
+                    },
+                }}}><Consumer>{intl => <span>{intl.formatNumber(num, {format})}</span>}</Consumer></IntlProvider>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const intl = getContext();
         const num   = new Date();
-
         const el = (
             <FormattedNumber value={num}>
                 {(formattedNumber) => (
@@ -133,9 +129,9 @@ describe('<FormattedNumber>', () => {
             </FormattedNumber>
         );
 
-        const comp = renderer(el, {intl});
+        const comp = renderer(el);
         expect(comp.toJSON()).toEqual(
-            renderer(<b>{intl.formatNumber(num)}</b>).toJSON()
+            renderer(<Consumer>{intl => <b>{intl.formatNumber(num)}</b>}</Consumer>).toJSON()
         );
     });
 });

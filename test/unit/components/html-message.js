@@ -2,7 +2,7 @@ import expect from 'expect';
 import expectJSX from 'expect-jsx';
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import {getContext} from '../../../src/components/provider';
+import {Consumer} from '../../../src/context';
 import FormattedHTMLMessage from '../../../src/components/html-message';
 
 expect.extend(expectJSX);
@@ -31,7 +31,6 @@ describe('<FormattedHTMLMessage>', () => {
     // });
 
     it('renders a formatted HTML message in a <span>', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, <b>World</b>!',
@@ -40,11 +39,11 @@ describe('<FormattedHTMLMessage>', () => {
         const el = <FormattedHTMLMessage {...descriptor} />;
 
         const comp1 = renderer(el);
-        const comp2 = renderer(<span
+        const comp2 = renderer(<Consumer>{intl => <span
             dangerouslySetInnerHTML={{
                 __html: intl.formatHTMLMessage(descriptor),
             }}
-        />);
+        />}</Consumer>);
         // console.log(comp1.toJSON());
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
     });
@@ -84,7 +83,6 @@ describe('<FormattedHTMLMessage>', () => {
     // });
 
     it('accepts `values` prop', () => {
-        const intl = getContext({ locale: 'en'});
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, <b>{name}</b>!',
@@ -92,11 +90,11 @@ describe('<FormattedHTMLMessage>', () => {
         const values = {name: 'Eric'};
 
         const comp1 = renderer(<FormattedHTMLMessage {...descriptor} values={values} />);
-        const comp2 = renderer(<span
+        const comp2 = renderer(<Consumer>{intl => <span
             dangerouslySetInnerHTML={{
                 __html: intl.formatHTMLMessage(descriptor, values),
             }}
-        />);
+        />}</Consumer>);
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
 
     });
@@ -119,8 +117,6 @@ describe('<FormattedHTMLMessage>', () => {
     });
 
     it('should HTML-escape `vlaues`', () => {
-    //     const {intl} = intlProvider.getChildContext();
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, <b>{name}</b>!',
@@ -130,16 +126,15 @@ describe('<FormattedHTMLMessage>', () => {
         const rendered = renderer(<FormattedHTMLMessage {...descriptor} values={values} />);
         expect(rendered.toJSON().props.dangerouslySetInnerHTML.__html).toEqual('Hello, <b>&lt;i&gt;Eric&lt;/i&gt;</b>!');
         expect(rendered.toJSON()).toEqual(
-            renderer(<span
+            renderer(<Consumer>{intl => <span
                 dangerouslySetInnerHTML={{
                     __html: intl.formatHTMLMessage(descriptor, values),
                 }}
-            />).toJSON()
+            />}</Consumer>).toJSON()
         );
     });
 
     it('accepts `tagName` prop', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, <b>World</b>!',
@@ -147,16 +142,15 @@ describe('<FormattedHTMLMessage>', () => {
 
 
         expect(renderer(<FormattedHTMLMessage {...descriptor} tagName="p" />).toJSON()).toEqual(
-            renderer(<p
+            renderer(<Consumer>{intl => <p
                 dangerouslySetInnerHTML={{
                     __html: intl.formatHTMLMessage(descriptor),
                 }}
-            />).toJSON()
+            />}</Consumer>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, <b>World</b>!',
@@ -167,11 +161,11 @@ describe('<FormattedHTMLMessage>', () => {
                 <i dangerouslySetInnerHTML={{__html: formattedHTMLMessage}} />
             )}
         </FormattedHTMLMessage>).toJSON()).toEqual(
-            renderer(<i
+            renderer(<Consumer>{intl => <i
                 dangerouslySetInnerHTML={{
                     __html: intl.formatHTMLMessage(descriptor),
                 }}
-            />).toJSON()
+            />}</Consumer>).toJSON()
         );
     });
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import Renderer from 'react-test-renderer';
 
-import IntlProvider, {IntlContext} from '../../../src/components/provider';
+import IntlProvider from '../../../src/components/provider';
+import {Consumer} from '../../../src/context';
 import FormattedDate from '../../../src/components/date';
 
 
@@ -50,7 +51,7 @@ describe('<FormattedDate>', () => {
         const el = <FormattedDate value={date} />;
 
         const comp1 = renderer(el);
-        const comp2 = renderer(<span><IntlContext.Consumer>{intl => intl.formatDate(date)}</IntlContext.Consumer></span>);
+        const comp2 = renderer(<span><Consumer>{intl => intl.formatDate(date)}</Consumer></span>);
         console.log(comp1.toJSON());
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
     });
@@ -89,7 +90,7 @@ describe('<FormattedDate>', () => {
         const el = <FormattedDate value={date} {...options} />;
 
         const comp1 = renderer(el);
-        const comp2 = renderer(<span><IntlContext.Consumer>{intl => intl.formatDate(date, options)}</IntlContext.Consumer></span>);
+        const comp2 = renderer(<span><Consumer>{intl => intl.formatDate(date, options)}</Consumer></span>);
 
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
     });
@@ -124,7 +125,7 @@ describe('<FormattedDate>', () => {
             date: {
                 'year-only': {year: 'numeric'},
             },
-        }}><span><IntlContext.Consumer>{intl => intl.formatDate(date, {format})}</IntlContext.Consumer></span></IntlProvider>);
+        }}><span><Consumer>{intl => intl.formatDate(date, {format})}</Consumer></span></IntlProvider>);
 
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
     });
@@ -136,7 +137,7 @@ describe('<FormattedDate>', () => {
                     )}</FormattedDate>;
 
         const comp1 = renderer(el);
-        const comp2 = renderer(<b><IntlContext.Consumer>{intl => intl.formatDate(date)}</IntlContext.Consumer></b>);
+        const comp2 = renderer(<b><Consumer>{intl => intl.formatDate(date)}</Consumer></b>);
 
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
     });

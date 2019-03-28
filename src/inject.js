@@ -11,7 +11,7 @@ import React, {Component} from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import invariant from 'invariant';
 
-import {Consumer} from './components/provider'
+import {Consumer} from './components/provider';
 
 function getDisplayName(Component) {
   return Component.displayName || Component.name || 'Component';
@@ -38,15 +38,20 @@ export default function injectIntl(WrappedComponent, options = {}) {
 
     render() {
       return (
-        <Consumer>{intl => (<WrappedComponent
-          {...this.props}
-          {...{[intlPropName]: intl}}
-          ref={
-            withRef
-              ? /* istanbul ignore next */ ref => (this._wrappedInstance = ref)
-              : null
-          }
-        />)}</Consumer>
+        <Consumer>
+          {intl => (
+            <WrappedComponent
+              {...this.props}
+              {...{[intlPropName]: intl}}
+              ref={
+                withRef
+                  ? /* istanbul ignore next */ ref =>
+                      (this._wrappedInstance = ref)
+                  : null
+              }
+            />
+          )}
+        </Consumer>
       );
     }
   }

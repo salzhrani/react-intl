@@ -1,9 +1,7 @@
 import React from 'react';
 import Renderer, { act } from 'react-test-renderer';
-import IntlProvider, {
-    getContext,
-    IntlContext
-} from '../../../src/components/provider';
+import IntlProvider from '../../../src/components/provider';
+import {IntlContext, getContext, Consumer } from '../../../src/context'
 import FormattedRelative from '../../../src/components/relative';
 
 describe('<FormattedRelative>', () => {
@@ -11,7 +9,6 @@ describe('<FormattedRelative>', () => {
 
     let consoleError;
     let renderer;
-    let intlProvider;
     // let setState;
 
     beforeEach(() => {
@@ -52,13 +49,12 @@ describe('<FormattedRelative>', () => {
     });
 
     it('renders a formatted relative time in a <span>', () => {
-        const intl = getContext();
         const date = new Date();
 
         const el = renderer(<FormattedRelative value={date} />);
 
         expect(el.toJSON()).toEqual(
-            renderer(<span>{intl.formatRelative(date)}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{intl.formatRelative(date)}</span>}</Consumer>).toJSON()
         );
     });
 
@@ -111,19 +107,17 @@ describe('<FormattedRelative>', () => {
     });
 
     it('accepts valid IntlRelativeFormat options as props', () => {
-        const intl = getContext();
-        const date = intl.now() - 60 * 1000;
+        const date = Date.now() - 60 * 1000;
         const options = { units: 'second' };
 
         const el = renderer(<FormattedRelative value={date} {...options} />);
 
         expect(el.toJSON()).toEqual(
-            renderer(<span>{intl.formatRelative(date, options)}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{intl.formatRelative(date, options)}</span>}</Consumer>).toJSON()
         );
     });
 
     it('fallsback and warns on invalid IntlRelativeFormat options', () => {
-        const intl = getContext();
         const el = renderer(<FormattedRelative value={0} units="invalid" />);
 
         expect(el.toJSON()).toEqual(
@@ -134,17 +128,7 @@ describe('<FormattedRelative>', () => {
     });
 
     it('accepts `format` prop', () => {
-        const intl = getContext({
-            locale: 'en',
-            formats: {
-                relative: {
-                    seconds: {
-                        units: 'second'
-                    }
-                }
-            }
-        });
-        const date = intl.now() - 60 * 1000;
+        const date = Date.now() - 60 * 1000;
         const format = 'seconds';
 
         const el = renderer(
@@ -163,30 +147,37 @@ describe('<FormattedRelative>', () => {
         );
 
         expect(el.toJSON()).toEqual(
-            renderer(
-                <span>{intl.formatRelative(date, { format })}</span>
+            renderer(<IntlProvider
+                locale="en"
+                formats={{
+                    relative: {
+                        seconds: {
+                            units: 'second'
+                        }
+                    }
+                }}
+            >
+                <Consumer>{intl => <span>{intl.formatRelative(date, { format })}</span>}</Consumer></IntlProvider>
             ).toJSON()
         );
     });
 
     it('accepts `initialNow` prop', () => {
-        const intl = getContext();
         const date = 0;
         const now = 1000;
 
-        expect(now).not.toEqual(intl.now());
+        expect(now).not.toEqual(Date.now());
 
         const el = renderer(
             <FormattedRelative value={date} initialNow={now} />
         );
 
         expect(el.toJSON()).toEqual(
-            renderer(<span>{intl.formatRelative(date, { now })}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{intl.formatRelative(date, { now })}</span>}</Consumer>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const intl = getContext();
         const date = new Date();
 
         const el = renderer(
@@ -196,7 +187,7 @@ describe('<FormattedRelative>', () => {
         );
 
         expect(el.toJSON()).toEqual(
-            renderer(<b>{intl.formatRelative(date)}</b>).toJSON()
+            renderer(<Consumer>{intl => <b>{intl.formatRelative(date)}</b>}</Consumer>).toJSON()
         );
     });
 

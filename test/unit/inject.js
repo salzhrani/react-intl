@@ -1,13 +1,12 @@
 import React from 'react';
 import Renderer from 'react-test-renderer';
 import { intlShape } from '../../src/types';
-import IntlProvider, { getContext } from '../../src/components/provider';
+import { getContext } from '../../src/context';
 import injectIntl from '../../src/inject';
 
 describe('injectIntl()', () => {
     let Wrapped;
     let renderer;
-    let intlProvider;
 
     beforeEach(() => {
         Wrapped = () => <div />;
@@ -54,7 +53,6 @@ describe('injectIntl()', () => {
     it('renders <WrappedComponent> with `intl` prop', () => {
         const intl = getContext();
         const Injected = injectIntl(Wrapped);
-
         expect(renderer(<Injected />).toJSON()).toEqual(
             renderer(<Wrapped intl={intl} />).toJSON()
         );

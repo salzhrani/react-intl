@@ -1,6 +1,7 @@
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import IntlProvider, { getContext, IntlContext } from '../../../src/components/provider';
+import IntlProvider from '../../../src/components/provider';
+import {Consumer} from '../../../src/context';
 import FormattedTime from '../../../src/components/time';
 
 
@@ -44,12 +45,11 @@ describe('<FormattedTime>', () => {
     });
 
     it('renders a formatted time in a <span>', () => {
-        const intl = getContext();
         const date = new Date();
 
         const el = renderer(<FormattedTime value={date} />);
         expect(el.toJSON()).toEqual(
-            renderer(<span>{intl.formatTime(date)}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{intl.formatTime(date)}</span>}</Consumer>).toJSON()
         );
     });
 
@@ -93,14 +93,13 @@ describe('<FormattedTime>', () => {
     });
 
     it('accepts valid Intl.DateTimeFormat options as props', () => {
-        const intl = getContext();
         const date = new Date();
         const options = { hour: '2-digit' };
 
         const el = <FormattedTime value={date} {...options} />;
 
         expect(renderer(el).toJSON()).toEqual(
-            renderer(<span>{intl.formatTime(date, options)}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{intl.formatTime(date, options)}</span>}</Consumer>).toJSON()
         );
     });
 
@@ -115,32 +114,28 @@ describe('<FormattedTime>', () => {
     });
 
     it('accepts `format` prop', () => {
-        const intl = getContext(
-            {
-                locale: 'en',
-                formats: {
-                    time: {
+    
+        const date = new Date();
+        const format = 'hour-only';
+
+        const el = <IntlProvider locale="en" formats={{time: {
                         'hour-only': {
                             hour: '2-digit',
                             hour12: false
                         }
-                    }
-                }
-            }
-        );
-
-        const date = new Date();
-        const format = 'hour-only';
-
-        const el = <IntlContext.Provider value={intl}><FormattedTime value={date} format={format} /></IntlContext.Provider>;
+                    }}}><FormattedTime value={date} format={format} /></IntlProvider>;
 
         expect(renderer(el).toJSON()).toEqual(
-            renderer(<span>{intl.formatTime(date, { format })}</span>).toJSON()
+            renderer(<IntlProvider locale="en" formats={{time: {
+                        'hour-only': {
+                            hour: '2-digit',
+                            hour12: false
+                        }
+                    }}}><Consumer>{intl => <span>{intl.formatTime(date, { format })}</span>}</Consumer></IntlProvider>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const intl = getContext();
         const date = new Date();
 
         const el = (
@@ -150,7 +145,7 @@ describe('<FormattedTime>', () => {
         );
 
         expect(renderer(el).toJSON()).toEqual(
-            renderer(<b>{intl.formatTime(date)}</b>).toJSON()
+            renderer(<Consumer>{intl => <b>{intl.formatTime(date)}</b>}</Consumer>).toJSON()
         );
     });
 });

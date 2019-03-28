@@ -1,7 +1,8 @@
 import expect from 'expect';
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import IntlProvider, {getContext} from '../../../src/components/provider';
+import IntlProvider from '../../../src/components/provider';
+import { Consumer } from '../../../src/context';
 import FormattedPlural from '../../../src/components/plural';
 
 
@@ -46,12 +47,11 @@ describe('<FormattedPlural>', () => {
     });
 
     it('renders a formatted plural in a <span>', () => {
-        const intl = getContext();
         const num = 1;
 
         const el = renderer(<FormattedPlural value={num} one="foo" other="bar" />);
         expect(el.toJSON()).toEqual(
-            renderer(<span>{el.root.props[intl.formatPlural(num)]}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{el.root.props[intl.formatPlural(num)]}</span>}</Consumer>).toJSON()
         );
     });
 
@@ -83,19 +83,17 @@ describe('<FormattedPlural>', () => {
     });
 
     it('accepts valid IntlPluralFormat options as props', () => {
-        const intl = getContext();
         const num = 22;
         const options = {style: 'ordinal'};
 
         const el = renderer(<FormattedPlural value={num} two="nd" {...options} />);
 
         expect(el.toJSON()).toEqual(
-            renderer(<span>{el.root.props[intl.formatPlural(num, options)]}</span>).toJSON()
+            renderer(<Consumer>{intl => <span>{el.root.props[intl.formatPlural(num, options)]}</span>}</Consumer>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const intl = getContext();
         const num = 1;
 
         const el = renderer(
@@ -107,7 +105,7 @@ describe('<FormattedPlural>', () => {
         );
 
         expect(el.toJSON()).toEqual(
-            renderer(<b>{el.root.props[intl.formatPlural(num)]}</b>).toJSON()
+            renderer(<Consumer>{intl => <b>{el.root.props[intl.formatPlural(num)]}</b>}</Consumer>).toJSON()
         );
     });
 });

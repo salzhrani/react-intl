@@ -73,17 +73,11 @@ export function shallowEquals(objA, objB) {
 }
 
 export function shouldIntlComponentUpdate(
-  {props, state, context = {}},
+  {props, state},
   nextProps,
-  nextState,
+  nextState
 ) {
-  return (
-    !shallowEquals(nextProps, props) ||
-    !shallowEquals(
-      nextState,
-      state
-    )
-  );
+  return !shallowEquals(nextProps, props) || !shallowEquals(nextState, state);
 }
 
 export function createError(message, exception) {

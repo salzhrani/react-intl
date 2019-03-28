@@ -4,41 +4,41 @@
  * See the accompanying LICENSE file for terms.
  */
 
-import React, { memo, useContext } from 'react';
+import React, {memo, useContext} from 'react';
 import PropTypes from 'prop-types';
-import { pluralFormatPropTypes } from '../types';
-import { IntlContext } from './provider';
+import {pluralFormatPropTypes} from '../types';
+import {IntlContext} from '../context';
 
 const FormattedPlural = memo(props => {
-    const { formatPlural, textComponent: Text } = useContext(IntlContext);
-    const { value, other, children } = props;
+  const {formatPlural, textComponent: Text} = useContext(IntlContext);
+  const {value, other, children} = props;
 
-    let pluralCategory = formatPlural(value, props);
-    let formattedPlural = props[pluralCategory] || other;
+  let pluralCategory = formatPlural(value, props);
+  let formattedPlural = props[pluralCategory] || other;
 
-    if (typeof children === 'function') {
-        return children(formattedPlural);
-    }
+  if (typeof children === 'function') {
+    return children(formattedPlural);
+  }
 
-    return <Text>{formattedPlural}</Text>;
+  return <Text>{formattedPlural}</Text>;
 });
 
 FormattedPlural.displayName = 'FormattedPlural';
 FormattedPlural.defaultProps = {
-    style: 'cardinal'
+  style: 'cardinal',
 };
 FormattedPlural.propTypes = {
-    ...pluralFormatPropTypes,
-    value: PropTypes.any.isRequired,
+  ...pluralFormatPropTypes,
+  value: PropTypes.any.isRequired,
 
-    other: PropTypes.node.isRequired,
-    zero: PropTypes.node,
-    one: PropTypes.node,
-    two: PropTypes.node,
-    few: PropTypes.node,
-    many: PropTypes.node,
+  other: PropTypes.node.isRequired,
+  zero: PropTypes.node,
+  one: PropTypes.node,
+  two: PropTypes.node,
+  few: PropTypes.node,
+  many: PropTypes.node,
 
-    children: PropTypes.func
+  children: PropTypes.func,
 };
 
 export default FormattedPlural;

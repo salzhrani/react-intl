@@ -7,7 +7,7 @@
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import {dateTimeFormatPropTypes} from '../types';
-import {Consumer} from './provider';
+import {Consumer} from '../context';
 
 export default class FormattedDate extends PureComponent {
   static displayName = 'FormattedDate';

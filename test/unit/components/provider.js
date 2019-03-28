@@ -1,9 +1,9 @@
 import expect from 'expect';
-import expectJSX from 'expect-jsx';
 import React from 'react';
 import Renderer from 'react-test-renderer';
 import {intlConfigPropTypes, intlFormatPropTypes} from '../../../src/types';
-import IntlProvider, { Consumer, IntlContext } from '../../../src/components/provider';
+import IntlProvider from '../../../src/components/provider';
+import { Consumer, IntlContext } from '../../../src/context';
 
 
 // const skipWhen = (shouldSkip, callback) => {
@@ -480,7 +480,6 @@ describe('<IntlProvider>', () => {
         }, 10);
     });
     it('Context object can call Date.now', () => {
-        console.log(Object.keys(IntlContext).join(', '));
         const {now} = IntlContext._currentValue;
         now();
         expect(dateNow.mock.calls.length).toBe(1);

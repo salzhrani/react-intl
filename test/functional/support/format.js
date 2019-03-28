@@ -24,8 +24,6 @@ export default function (ReactIntl) {
         it('formats dates', () => {
             const date = new Date();
             const el   = <FormattedDate value={date} month="numeric" />;
-
-            ;
             expect(renderer(el).toJSON()).toEqual(
                 renderer(<span>{date.getMonth() + 1}</span>).toJSON()
             );

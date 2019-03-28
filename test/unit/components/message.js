@@ -1,6 +1,6 @@
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import {getContext} from '../../../src/components/provider';
+import {Consumer} from '../../../src/context';
 import FormattedMessage from '../../../src/components/message';
 
 
@@ -39,14 +39,12 @@ describe('<FormattedMessage>', () => {
     });
 
     it('renders a formatted message in a <span>', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, World!',
         };
-        console.log('formatMessage', intl.formatMessage);
         const comp1 = renderer(<FormattedMessage {...descriptor} />);
-        const comp2 = renderer(<span>{intl.formatMessage(descriptor)}</span>);
+        const comp2 = renderer(<Consumer>{intl => <span>{intl.formatMessage(descriptor)}</span>}</Consumer>);
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
     });
 
@@ -120,14 +118,13 @@ describe('<FormattedMessage>', () => {
     // });
 
     it('accepts `values` prop', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, {name}!',
         };
         const values = {name: 'Eric'};
         const comp1 = renderer(<FormattedMessage {...descriptor} values={values} />);
-        const comp2 = renderer(<span>{intl.formatMessage(descriptor, values)}</span>);
+        const comp2 = renderer(<Consumer>{intl => <span>{intl.formatMessage(descriptor, values)}</span>}</Consumer>);
         expect(comp1.toJSON()).toEqual(comp2.toJSON());
     });
 
@@ -149,7 +146,6 @@ describe('<FormattedMessage>', () => {
     });
 
     it('accepts string as `tagName` prop', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, World!',
@@ -157,12 +153,11 @@ describe('<FormattedMessage>', () => {
 
         const rendered = renderer(<FormattedMessage {...descriptor} tagName="p" />);
         expect(rendered.toJSON()).toEqual(
-            renderer(<p>{intl.formatMessage(descriptor)}</p>).toJSON()
+            renderer(<Consumer>{intl => <p>{intl.formatMessage(descriptor)}</p>}</Consumer>).toJSON()
         );
     });
 
     it('accepts an react element as `tagName` prop', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, World!',
@@ -171,12 +166,11 @@ describe('<FormattedMessage>', () => {
         const H1 = ({children}) => <h1>{children}</h1>
         const rendered = renderer(<FormattedMessage {...descriptor} tagName={H1} />);
         expect(rendered.toJSON()).toEqual(
-            renderer(<H1>{intl.formatMessage(descriptor)}</H1>).toJSON()
+            renderer(<Consumer>{intl => <H1>{intl.formatMessage(descriptor)}</H1>}</Consumer>).toJSON()
         );
     });
 
     it('supports function-as-child pattern', () => {
-        const intl = getContext();
         const descriptor = {
             id: 'hello',
             defaultMessage: 'Hello, World!',
@@ -188,7 +182,7 @@ describe('<FormattedMessage>', () => {
             )}
         </FormattedMessage>);
         expect(rendered.toJSON()).toEqual(
-            renderer(<b>{intl.formatMessage(descriptor)}</b>).toJSON()
+            renderer(<Consumer>{intl => <b>{intl.formatMessage(descriptor)}</b>}</Consumer>).toJSON()
         );
     });
 
@@ -224,7 +218,6 @@ describe('<FormattedMessage>', () => {
         expect(rendered.toJSON()).toEqual(
             renderer(<strong>Hello, <b>Prem</b>!</strong>).toJSON()
         );
-        console.log(rendered.toJSON());
         expect(Array.isArray(rendered.toJSON().children)).toBe(true);
     });
 });
